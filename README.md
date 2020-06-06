@@ -17,3 +17,4 @@ Pour lancer le programme avec les paramètres par défaut, utilisez la commande 
 - `-f size` ou `--focal size` pour fournir la focale de la caméra. Cette valeur est enregistrée pour les utilisations suivantes.
 - `-b size` ou `--board size` pour fournir la distance réelle entre les marqueurs adjacents.
 - `--integration-test` signifie d'utiliser des données factices pour tester l'intégration.
+- `-h` ou `--help` pour afficher ces informations dans le terminal
