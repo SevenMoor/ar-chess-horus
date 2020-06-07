@@ -7,7 +7,7 @@ Le programme pourrait être utilisé indépendemment, cependant seul le marqueur
 
 # Installation
 Avant de commencer, assurez vous d'avoir une installation fonctionnelle de opencv, qui reconnait correctement votre Webcam.
-Lancer ensuite la commande `git clone https://github.com/SevenMoor/ar-chess-horus && cd ar-chess-horus && ./install.sh && rm -rf .`. Savourez!
+Lancer ensuite la commande `git clone https://github.com/SevenMoor/ar-chess-horus && cd ar-chess-horus && ./install.sh && cd .. && rm -rf ar-chess-horus`. Savourez!
 
 # Utilisation
 Pour lancer le programme avec les paramètres par défaut, utilisez la commande `ar-horus`. Cependant ceci est déconseillé car les caractéristiques matérielles varient beaucoup d'une webcam à l'autre. Il existe un fichier de configuration `/opt/ar-chess-horus/horus.cfg` modifiable à la main, mais on pourra aussi fournir la configuration à l'exécution à l'aide de différents paramètres:
