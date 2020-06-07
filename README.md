@@ -7,7 +7,7 @@ Le programme pourrait être utilisé indépendemment, cependant seul le marqueur
 
 # Installation
 Avant de commencer, assurez vous d'avoir une installation fonctionnelle de opencv, qui reconnait correctement votre Webcam.
-Lancer ensuite la commande `git clone https://github.com/SevenMoor/ar-chess-horus && cd ar-chess-horus && ./install.sh && rm -rf .`. Savourez!
+Lancer ensuite la commande `git clone https://github.com/SevenMoor/ar-chess-horus && cd ar-chess-horus && ./install.sh && cd .. && rm -rf ar-chess-horus`. Savourez!
 
 # Utilisation
 Pour lancer le programme avec les paramètres par défaut, utilisez la commande `ar-horus`. Cependant ceci est déconseillé car les caractéristiques matérielles varient beaucoup d'une webcam à l'autre. Il existe un fichier de configuration `/opt/ar-chess-horus/horus.cfg` modifiable à la main, mais on pourra aussi fournir la configuration à l'exécution à l'aide de différents paramètres:
@@ -16,5 +16,8 @@ Pour lancer le programme avec les paramètres par défaut, utilisez la commande 
 - `-w id` ou `--webcam id` pour fournir l'identifiant (nombre entier) de la caméra à utiliser comme entrée.
 - `-f size` ou `--focal size` pour fournir la focale de la caméra. Cette valeur est enregistrée pour les utilisations suivantes.
 - `-b size` ou `--board size` pour fournir la distance réelle entre les marqueurs adjacents.
-- `-i` ou `--integration-test` signifie d'utiliser des données factices pour tester l'intégration.
-- `-h` ou `--help` pour afficher ces informations dans le terminal
+- `-i test` ou `--integration-test test` signifie d'utiliser des données factices pour tester l'intégration, selon la valeur choisie pour test.
+- `-t` ou `--trapeze` pour afficher dans une fenêtre le trapèze de perspective capturé.
+- `-h` ou `--help` pour afficher ces informations dans le terminal.
+
+Pour mettre à jour horus, il faut lancer `ar-horus update`, et on peut également le désinstaller avec `ar-horus uninstall`.
