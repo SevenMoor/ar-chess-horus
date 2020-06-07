@@ -5,7 +5,7 @@ import math
 
 class FixtureGenerator(object):
 
-    def __init__(self,init_position,init_rotatation):
+    def __init__(self,init_position,init_rotation):
         self.__position = init_position
         self.__rotation = init_rotation
         self.__counter = 0
