@@ -16,5 +16,8 @@ Pour lancer le programme avec les paramètres par défaut, utilisez la commande 
 - `-w id` ou `--webcam id` pour fournir l'identifiant (nombre entier) de la caméra à utiliser comme entrée.
 - `-f size` ou `--focal size` pour fournir la focale de la caméra. Cette valeur est enregistrée pour les utilisations suivantes.
 - `-b size` ou `--board size` pour fournir la distance réelle entre les marqueurs adjacents.
-- `-i` ou `--integration-test` signifie d'utiliser des données factices pour tester l'intégration.
-- `-h` ou `--help` pour afficher ces informations dans le terminal
+- `-i test` ou `--integration-test test` signifie d'utiliser des données factices pour tester l'intégration, selon la valeur choisie pour test.
+- `-t` ou `--trapeze` pour afficher dans une fenêtre le trapèze de perspective capturé.
+- `-h` ou `--help` pour afficher ces informations dans le terminal.
+
+Pour mettre à jour horus, il faut lancer `ar-horus update`, et on peut également le désinstaller avec `ar-horus uninstall`.
