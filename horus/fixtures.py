@@ -19,7 +19,7 @@ class FixtureGenerator(object):
         self.__position[1] = point[1] + 95
         self.__position[2] = math.sin(self.__angle*math.pi/180) + point[2]
         self.__rotation[0] = -45
-        self.__rotation[1] = 180 - self.__angle
+        self.__rotation[1] = (self.__angle + 180) % 360
         self.__rotation[2] = 0
 
         return self.__position, self.__rotation
