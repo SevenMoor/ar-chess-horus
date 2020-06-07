@@ -27,8 +27,9 @@ class OutputManager(object):
 
     def __init__(self,path):
         self.__path = path
-        if not os.path.exists(path):
-            descriptor = os.mkfifo(path)
+        if os.path.exists(path):
+            os.remove(path)
+        descriptor = os.mkfifo(path)
 
     def close(self):
         os.remove(self.__path)
