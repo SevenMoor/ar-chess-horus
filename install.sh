@@ -1,8 +1,8 @@
 #!/bin/bash
 
-cp . /opt/ar-chess-horus -R
-chmod +x /opt/ar-chess-horus/horus.sh
-rm -f /opt/ar-chess-horus/install.sh
+sudo cp . /opt/ar-chess-horus -R
+sudo chmod +x /opt/ar-chess-horus/horus.sh
+sudo rm -f /opt/ar-chess-horus/install.sh
 
 FILE=/usr/bin/ar-horus
 if [[ -f "$FILE" ]]; then
