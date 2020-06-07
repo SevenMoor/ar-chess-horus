@@ -64,4 +64,20 @@ class FixtureGenerator(object):
         return self.__position
 
     def run(self,test,point=(0,0,0)):
-        pass
+        if test == "rotate_x":
+            return self.__position, self.test_pitch()
+        elif test == "rotate_y":
+            return self.__position, self.test_yaw()
+        elif test == "rotate_z":
+            return self.__position, self.test_roll()
+        elif test == "translate_x":
+            return self.test_translate_x(), self.__rotation
+        elif test == "translate_y":
+            return self.test_translate_y(), self.__rotation
+        elif test == "translate_z":
+            return self.test_translate_z(), self.__rotation
+        elif test == "circle_around":
+            return test_turn_around(point)
+        else:
+            raise Exception("Nom de test invalide")
+            return None
