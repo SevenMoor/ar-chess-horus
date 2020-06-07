@@ -11,3 +11,4 @@ fi
 
 sudo pip install /opt/ar-chess-horus
 sudo ln -s /opt/ar-chess-horus/horus.sh /usr/bin/ar-horus
+echo "\e[36mInstallation terminée\e[0m!"
