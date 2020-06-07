@@ -15,9 +15,9 @@ class FixtureGenerator(object):
     def test_turn_around(self,point):
         self.__angle += 0.5
         self.__angle %= 360
-        self.__position[0] = math.cos(self.__angle*math.pi/180) + point[0]
+        self.__position[0] = math.cos(self.__angle*math.pi/180)*200 + point[0]
         self.__position[1] = point[1] + 95
-        self.__position[2] = math.sin(self.__angle*math.pi/180) + point[2]
+        self.__position[2] = math.sin(self.__angle*math.pi/180)*200 + point[2]
         self.__rotation[0] = -45
         self.__rotation[1] = (self.__angle + 180) % 360
         self.__rotation[2] = 0
@@ -77,7 +77,7 @@ class FixtureGenerator(object):
         elif test == "translate_z":
             return self.test_translate_z(), self.__rotation
         elif test == "circle_around":
-            return test_turn_around(point)
+            return self.test_turn_around(point)
         else:
             raise Exception("Nom de test invalide")
             return None
