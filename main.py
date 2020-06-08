@@ -3,6 +3,7 @@
 
 import cv2
 import argparse
+import signal
 
 from horus.io import *
 from horus.vision import *
@@ -19,6 +20,8 @@ parser.add_argument("-p","--pipe",help="Chemin du pipe de communication à crée
 parser.add_argument("-w","--webcam",help="Identifiant de la webcam à utiliser",default=0,type=int)
 parser.add_argument("-c","--calibrate",help="Ouvre le programme avec le GUI de calibration du marqueur souhaité",choices=['a','b','c','d'])
 parser.add_argument("-i","--integration-test",help="Indique de transmettre des données factices pour tester l'intégration spécifié",choices=['translate_x','translate_y','translate_z','rotate_x','rotate_y','rotate_z','circle_around'])
+#A gérer
+parser.add_argument("-t","--trapeze",help="Affiche dans une fenêtre le trapèze de perspective capturé",action="store_true")
 parser.add_argument("-f","--focal",help="Configure et utilise la valeur fournie comme focale de la caméra en mm",default=50,type=int)
 parser.add_argument("-b","--board",help="Configure et utilise la valeur fournie comme taille du plateau en mm",default=186,type=int)
 args = parser.parse_args()
@@ -30,6 +33,16 @@ args = parser.parse_args()
 input = InputManager(args.webcam)
 output = OutputManager(args.pipe)
 config = ConfigManager("horus.cfg")
+
+#Killing handler Definition
+def kill_handler(signal,frame):
+    output.close()
+    input.close()
+    config.close()
+
+#Assigning Handlers
+signal.signal(signal.SIGINT,kill_handler)
+signal.signal(signal.SIGTERM,kill_handler)
 
 if args.integration_test is not None:
     board = config.get("board")
