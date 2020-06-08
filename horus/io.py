@@ -31,14 +31,15 @@ class OutputManager(object):
         if os.path.exists(path):
             os.remove(path)
         descriptor = os.mkfifo(path)
+        self.session = open(self.__path,'w')
 
     def close(self):
         os.remove(self.__path)
+        self.session.close()
 
     def propagate(self,position,rotation):
         if len(position)>=3 and len(rotation)>=3:
-            session = open(self.__path,'w')
-            session.write('%f %f %f %f %f %f' % (position[0],position[1],position[2],rotation[0],rotation[1],rotation[2]))
-            session.close()
+            self.session.write('%f %f %f %f %f %f' % (position[0],position[1],position[2],rotation[0],rotation[1],rotation[2]))
+            self.session.flush()
         else:
             raise Exception("Le format des sorties est incorrect")
