@@ -4,6 +4,7 @@
 import cv2
 import argparse
 import signal
+import sys
 
 from horus.io import *
 from horus.vision import *
@@ -36,9 +37,10 @@ config = ConfigManager("horus.cfg")
 
 #Killing handler Definition
 def kill_handler(signal,frame):
-    output.close()
     input.close()
+    output.close()
     config.close()
+    sys.exit()
 
 #Assigning Handlers
 signal.signal(signal.SIGINT,kill_handler)
