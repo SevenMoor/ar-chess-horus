@@ -41,7 +41,7 @@ class ConfigManager(object):
 
 
             if key_block == True and line.strip().startswith(param_key+"="):
-                self.__content[i] = param_key+"="+value+"\n"
+                self.__content[i] = param_key+"="+str(value)+"\n"
 
         text = "".join([str(line) for line in self.__content])
         self.__file.seek(0)
