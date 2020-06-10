@@ -21,10 +21,9 @@ parser.add_argument("-p","--pipe",help="Chemin du pipe de communication à crée
 parser.add_argument("-w","--webcam",help="Identifiant de la webcam à utiliser",default=0,type=int)
 parser.add_argument("-c","--calibrate",help="Ouvre le programme avec le GUI de calibration du marqueur souhaité",choices=['a','b','c','d'])
 parser.add_argument("-i","--integration-test",help="Indique de transmettre des données factices pour tester l'intégration spécifié",choices=['translate_x','translate_y','translate_z','rotate_x','rotate_y','rotate_z','circle_around'])
-#A gérer
 parser.add_argument("-t","--trapeze",help="Affiche dans une fenêtre le trapèze de perspective capturé",action="store_true")
-parser.add_argument("-f","--focal",help="Configure et utilise la valeur fournie comme focale de la caméra en mm",default=50,type=int)
-parser.add_argument("-b","--board",help="Configure et utilise la valeur fournie comme taille du plateau en mm",default=186,type=int)
+parser.add_argument("-f","--focal",help="Configure et utilise la valeur fournie comme focale de la caméra en mm",type=int)
+parser.add_argument("-b","--board",help="Configure et utilise la valeur fournie comme taille du plateau en mm",type=int)
 args = parser.parse_args()
 
 
@@ -46,15 +45,19 @@ def kill_handler(signal,frame):
 signal.signal(signal.SIGINT,kill_handler)
 signal.signal(signal.SIGTERM,kill_handler)
 
+if args.focal is not None:
+    config.set("camera","focal",str(args.focal))
+
+if args.board is not None:
+    config.set("board","size",str(args.board))
+
 if args.integration_test is not None:
     board = config.get("board")
     fix = FixtureGenerator([board["size"]/2,95,-board["size"]],[0,0,0])
 
     while True:
         position,rotation = fix.run(args.integration_test,[board["size"]/2,0,board["size"]/2])
-        if args.output:
-            print('%f %f %f %f %f %f' % (position[0],position[1],position[2],rotation[0],rotation[1],rotation[2]))
-        output.propagate(position,rotation)
+        output.propagate(position,rotation,args.output)
         sleep(0.03)
 else:
     #=================
@@ -99,6 +102,11 @@ else:
         })
 
 
+    #=============================================
+    #Trapeze Builder and Data Compiler Declaration
+    builder = TrapezeBuilder(mask_builders)
+    #trapeze = builder.fake_trapeze((200,800),(300,500),(600,500),(700,800))
+    compiler = DataCompiler(config)
 
     #===================
     #Controls Definition
@@ -122,6 +130,18 @@ else:
     #Main Loop
     while True:
         image = input.propagate()
+
+
+        #----------------
+        #Main calculation
+        camera = config.get("camera")
+        trapeze = builder.build_trapeze(image)
+        trap_image = builder.show_trapeze((camera["height"],camera["width"]))
+        compiler.update_trapeze(trapeze)
+        rotation, position = compiler.get_board_pose()
+        if rotation is not None and position is not None:
+            cam_pos,cam_rot = compiler.get_camera_pose(rotation,position)
+            output.propagate(cam_pos,cam_rot,args.output)
 
         #-------------------------------
         #Update values based on controls
@@ -155,7 +175,17 @@ else:
             cv2.imshow("Contours",cv2.resize(contours, dim, interpolation = cv2.INTER_AREA))
 
         if args.trapeze:
-            cv2.imshow("Trapeze",trapeze_builder.show_trapeze((camera["width"],camera["height"])))
+            if rotation is not None and position is not None:
+                trap_image = compiler.show_axis(trap_image,rotation,position)
+
+            scale_percent = 40 # percent of original size
+            width = int(image.shape[1] * scale_percent / 100)
+            height = int(image.shape[0] * scale_percent / 100)
+            dim = (width, height)
+
+            cv2.imshow("Image",cv2.cvtColor(cv2.resize(image, dim, interpolation = cv2.INTER_AREA),cv2.COLOR_HSV2BGR))
+            cv2.imshow("Trapeze",cv2.resize(trap_image, dim, interpolation = cv2.INTER_AREA))
+
 
         #---------------
         #Event handling
