@@ -1,77 +1,132 @@
 #!/usr/bin/python
 
+import math
+import numpy as np
+import cv2
+
 class TrapezeBuilder(object):
 
     def __init__(self,mask_builders):
         self.__mask_builders = mask_builders
+        self.__trapeze = None
 
     def show_trapeze(self,resolution):
-        pass
+        image = np.zeros((resolution[0],resolution[1],3))
 
-    def build_trapeze(self,image):
+        if self.__trapeze is not None:
+            if self.__trapeze["a"] is not None and self.__trapeze["b"] is not None and self.__trapeze["c"] and self.__trapeze["d"] is not None:
+                if self.__trapeze["a"][0] is not None and self.__trapeze["a"][1] is not None and self.__trapeze["b"][0] is not None and self.__trapeze["b"][1] is not None and self.__trapeze["c"][0] is not None and self.__trapeze["c"][1] is not None and self.__trapeze["d"][0] is not None and self.__trapeze["d"][1] is not None:
+                    cv2.line(image,self.__trapeze["a"],self.__trapeze["b"],(255,255,255),2)
+                    cv2.line(image,self.__trapeze["b"],self.__trapeze["c"],(255,255,255),2)
+                    cv2.line(image,self.__trapeze["c"],self.__trapeze["d"],(255,255,255),2)
+                    cv2.line(image,self.__trapeze["d"],self.__trapeze["a"],(255,255,255),2)
+
+        return image
+
+    def fake_trapeze(self,a,b,c,d):
         trapeze = {}
-
-        _,_,a = mask_builders["a"].generate_mask(image)
-        _,_,b = mask_builders["b"].generate_mask(image)
-        _,_,c = mask_builders["c"].generate_mask(image)
-        _,_,d = mask_builders["d"].generate_mask(image)
-
-        ab = {}
-        bc = {}
-        cd = {}
-        da = {}
-
-        ab["derivative"] = (b[1]-a[1])/(b[0]-a[0])
-        bc["derivative"] = (c[1]-b[1])/(c[0]-b[0])
-        cd["derivative"] = (d[1]-c[1])/(d[0]-c[0])
-        da["derivative"] = (a[1]-d[1])/(a[0]-d[0])
-        ab["center"] = ((a[0]+b[0])/2,(a[1]+b[1])/2)
-        bc["center"] = ((c[0]+b[0])/2,(c[1]+b[1])/2)
-        cd["center"] = ((d[0]+c[0])/2,(d[1]+c[1])/2)
-        da["center"] = ((a[0]+d[0])/2,(a[1]+d[1])/2)
 
         trapeze["a"] = a
         trapeze["b"] = b
         trapeze["c"] = c
         trapeze["d"] = d
-        trapeze["ab"] = ab
-        trapeze["bc"] = bc
-        trapeze["cd"] = cd
-        trapeze["da"] = da
 
-        trapeze["origin"] = a
-        if trapeze["origin"][0]>b[0]:
-            trapeze["origin"] = b
-        if trapeze["origin"][0]>c[0]:
-            trapeze["origin"] = c
-        if trapeze["origin"][0]>d[0]:
-            trapeze["origin"] = d
+        self.__trapeze = trapeze
 
+        return trapeze
+
+    def build_trapeze(self,image):
+        trapeze = {}
+
+        _,conta,a = self.__mask_builders["a"].generate_mask(image)
+        _,contb,b = self.__mask_builders["b"].generate_mask(image)
+        _,contc,c = self.__mask_builders["c"].generate_mask(image)
+        _,contd,d = self.__mask_builders["d"].generate_mask(image)
+
+        # cv2.imshow("Conta",conta)
+        # cv2.imshow("Contb",contb)
+        # cv2.imshow("Contc",contc)
+        # cv2.imshow("Contd",contd)
+
+        trapeze["a"] = a
+        trapeze["b"] = b
+        trapeze["c"] = c
+        trapeze["d"] = d
+
+        self.__trapeze = trapeze
 
         return trapeze
 
 class DataCompiler(object):
 
-    def __init__(self):
-        pass
+    def __init__(self,config):
+        self.__trapeze = None
+        self.__config = config
+
+        board = self.__config.get("board")
+        camera = self.__config.get("camera")
+
+        self.__board_points = np.array([
+            (0,0,0),
+            (board["size"],0,0),
+            (board["size"],0,board["size"]),
+            (0,0,board["size"])
+        ],dtype="double")
+
+        self.__camera_matrix = np.array([
+            [camera["focal"],0,camera["cx"]],
+            [0,camera["focal"],camera["cy"]],
+            [0,0,1]
+        ],dtype="double")
+        self.__dist_coeffs = np.zeros((4,1))
 
     def update_trapeze(self,trapeze):
-        pass
+        self.__trapeze = trapeze
 
-    def get_distance(self,a,b):
-        #distance = sqrt((focal*truewidth/mesured)^2+(board/2)^2)
-        pass
+    def get_board_pose(self):
+        if self.__trapeze["a"][0] is not None and self.__trapeze["a"][1] is not None and self.__trapeze["b"][0] is not None and self.__trapeze["b"][1] is not None and self.__trapeze["c"][0] is not None and self.__trapeze["c"][1] is not None and self.__trapeze["d"][0] is not None and self.__trapeze["d"][1] is not None:
+            projected_points = np.array([
+                (self.__trapeze["a"][0],self.__trapeze["a"][1]),
+                (self.__trapeze["b"][0],self.__trapeze["b"][1]),
+                (self.__trapeze["c"][0],self.__trapeze["c"][1]),
+                (self.__trapeze["d"][0],self.__trapeze["d"][1])
+            ],dtype="double")
 
-    def get_roll(self):
-        #Angle ROLL = arctan(bc["derivative"])
-        pass
+            success, rvector, tvector = cv2.solvePnP(self.__board_points, projected_points, self.__camera_matrix, self.__dist_coeffs, flags=cv2.SOLVEPNP_ITERATIVE)
 
-    def get_yaw(self):
-        pass
+            if success:
+                return rvector, tvector
+            else:
+                return None, None
+        else:
+            return None, None
 
-    def get_pitch(self):
-        pass
 
-    def get_postion(self):
-        #Find distance to 3 points, calculate equations and solve system
-        pass
+    def get_camera_pose(self,rvec,tvec):
+        r_mat = cv2.Rodrigues(rvec)
+        rt_mat = np.transpose(r_mat[0])
+        cam_pos = -1 * rt_mat.dot(tvec)
+        cam_rot = rt_mat.dot(np.array([
+            0,
+            0,
+            1
+        ]))
+
+        return cam_pos, cam_rot
+
+    def show_axis(self,image,rotation,translation):
+        zero_axis, zero_jacobian = cv2.projectPoints(np.array([(0.0, 0.0, 0.0)],dtype="double"), rotation, translation, self.__camera_matrix, self.__dist_coeffs)
+        x_axis, x_jacobian = cv2.projectPoints(np.array([(100.0, 0.0, 0.0)],dtype="double"), rotation, translation, self.__camera_matrix, self.__dist_coeffs)
+        y_axis, y_jacobian = cv2.projectPoints(np.array([(0.0, 50.0, 0.0)],dtype="double"), rotation, translation, self.__camera_matrix, self.__dist_coeffs)
+        z_axis, z_jacobian = cv2.projectPoints(np.array([(0.0, 0.0, 100.0)],dtype="double"), rotation, translation, self.__camera_matrix, self.__dist_coeffs)
+
+        p_0 = (int(zero_axis[0][0][0]), int(zero_axis[0][0][1]))
+        p_x = (int(x_axis[0][0][0]), int(x_axis[0][0][1]))
+        p_y = (int(y_axis[0][0][0]), int(y_axis[0][0][1]))
+        p_z = (int(z_axis[0][0][0]), int(z_axis[0][0][1]))
+
+        cv2.line(image,p_0,p_x,(0,0,255),3)
+        cv2.line(image,p_0,p_y,(0,255,0),3)
+        cv2.line(image,p_0,p_z,(255,0,0),3)
+
+        return image
