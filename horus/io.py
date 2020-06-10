@@ -35,10 +35,12 @@ class OutputManager(object):
     def close(self):
         os.remove(self.__path)
 
-    def propagate(self,position,rotation):
+    def propagate(self,position,rotation,output):
         if len(position)>=3 and len(rotation)>=3:
             session = open(self.__path,'w')
-            session.write('%f %f %f %f %f %f' % (position[0],position[1],position[2],rotation[0],rotation[1],rotation[2]))
+            session.write('%f %f %f %f %f %f\n' % (position[0],position[1],position[2],rotation[0],rotation[1],rotation[2]))
+            if output:
+                print('%f %f %f %f %f %f' % (position[0],position[1],position[2],rotation[0],rotation[1],rotation[2]))
             session.close()
         else:
             raise Exception("Le format des sorties est incorrect")
