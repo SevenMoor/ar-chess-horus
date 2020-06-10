@@ -31,15 +31,17 @@ class ConfigManager(object):
     def set(self,block,param_key,value):
         key_block = False
 
-        for line in self.__content:
+        for i in range(len(self.__content)):
+            line = self.__content[i]
+            if line.strip().startswith("[") and key_block == True:
+                break
+
             if line.strip() == "["+block+"]":
                 key_block = True
 
-            if line.strip().startswith("["):
-                break
 
             if key_block == True and line.strip().startswith(param_key+"="):
-                line = param_key+"="+value
+                self.__content[i] = param_key+"="+value+"\n"
 
         text = "".join([str(line) for line in self.__content])
         self.__file.seek(0)
