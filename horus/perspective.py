@@ -43,11 +43,6 @@ class TrapezeBuilder(object):
         _,contc,c = self.__mask_builders["c"].generate_mask(image)
         _,contd,d = self.__mask_builders["d"].generate_mask(image)
 
-        # cv2.imshow("Conta",conta)
-        # cv2.imshow("Contb",contb)
-        # cv2.imshow("Contc",contc)
-        # cv2.imshow("Contd",contd)
-
         trapeze["a"] = a
         trapeze["b"] = b
         trapeze["c"] = c
@@ -92,7 +87,7 @@ class DataCompiler(object):
                 (self.__trapeze["d"][0],self.__trapeze["d"][1])
             ],dtype="double")
 
-            success, rvector, tvector = cv2.solvePnP(self.__board_points, projected_points, self.__camera_matrix, self.__dist_coeffs, flags=cv2.SOLVEPNP_ITERATIVE)
+            success, rvector, tvector = cv2.solvePnP(self.__board_points, projected_points, self.__camera_matrix, self.__dist_coeffs,flags=cv2.SOLVEPNP_ITERATIVE)
 
             if success:
                 return rvector, tvector
@@ -106,7 +101,26 @@ class DataCompiler(object):
         r_mat = cv2.Rodrigues(rvec)
         rt_mat = np.transpose(r_mat[0])
         cam_pos = -1 * rt_mat.dot(tvec)
-        cam_rot = rt_mat.dot(np.array([
+        cam_rot_temporary = rt_mat.dot(np.array([
+            0,
+            0,
+            1
+        ]))
+
+        #cam_rot = [cam_rot_temporary[0],0.0,cam_rot_temporary[2]]
+
+        x_axis = r_mat[0].dot([1,0,0])
+        z_axis = r_mat[0].dot([0,0,1])
+        y_axis = np.cross(x_axis,z_axis)
+
+        calculated_rotation = np.array([
+            [x_axis],
+            [y_axis],
+            [z_axis]
+        ])
+
+        calculated_axises = np.transpose(calculated_rotation)
+        cam_rot = calculated_axises.dot(np.array([
             0,
             0,
             1
@@ -117,7 +131,7 @@ class DataCompiler(object):
     def show_axis(self,image,rotation,translation):
         zero_axis, zero_jacobian = cv2.projectPoints(np.array([(0.0, 0.0, 0.0)],dtype="double"), rotation, translation, self.__camera_matrix, self.__dist_coeffs)
         x_axis, x_jacobian = cv2.projectPoints(np.array([(100.0, 0.0, 0.0)],dtype="double"), rotation, translation, self.__camera_matrix, self.__dist_coeffs)
-        y_axis, y_jacobian = cv2.projectPoints(np.array([(0.0, 50.0, 0.0)],dtype="double"), rotation, translation, self.__camera_matrix, self.__dist_coeffs)
+        y_axis, y_jacobian = cv2.projectPoints(np.array([(0.0, 100.0, 0.0)],dtype="double"), rotation, translation, self.__camera_matrix, self.__dist_coeffs)
         z_axis, z_jacobian = cv2.projectPoints(np.array([(0.0, 0.0, 100.0)],dtype="double"), rotation, translation, self.__camera_matrix, self.__dist_coeffs)
 
         p_0 = (int(zero_axis[0][0][0]), int(zero_axis[0][0][1]))

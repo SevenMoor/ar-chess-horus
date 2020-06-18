@@ -34,6 +34,7 @@ input = InputManager(args.webcam)
 output = OutputManager(args.pipe)
 config = ConfigManager("horus.cfg")
 
+
 #Killing handler Definition
 def kill_handler(signal,frame):
     input.close()
@@ -125,10 +126,21 @@ else:
         cv2.createTrackbar("vt","Controls",values["vt"],255,nothing)
 
 
+    t_tick = None
+
 
     #=========
     #Main Loop
     while True:
+
+        # #Performance test
+        # if t_tick is not None:
+        #     t_before = t_tick
+        #     t_tick = time.time()
+        #     print(str(t_tick-t_before))
+        # else:
+        #     t_tick = time.time()
+
         image = input.propagate()
 
 
@@ -162,7 +174,7 @@ else:
             #Key Operations
             mask,contours,_ = mask_builders[args.calibrate].generate_mask(image)
 
-            scale_percent = 40 # percent of original size
+            scale_percent = 100 # percent of original size
             width = int(image.shape[1] * scale_percent / 100)
             height = int(image.shape[0] * scale_percent / 100)
             dim = (width, height)
@@ -178,7 +190,7 @@ else:
             if rotation is not None and position is not None:
                 trap_image = compiler.show_axis(trap_image,rotation,position)
 
-            scale_percent = 40 # percent of original size
+            scale_percent = 100 # percent of original size
             width = int(image.shape[1] * scale_percent / 100)
             height = int(image.shape[0] * scale_percent / 100)
             dim = (width, height)

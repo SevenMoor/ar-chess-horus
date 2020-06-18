@@ -42,8 +42,6 @@ class ColorMaskBuilder(object):
 
         x = None
         y = None
-        p1 = None
-        p2 = None
 
         for contour in contours:
             area = cv2.contourArea(contour)
@@ -51,12 +49,10 @@ class ColorMaskBuilder(object):
 
             #TODO Add param to control
             if area > 100 and len(approx)==4:
-                cv2.drawContours(contour_map,[approx],0,(255,0,0),1)
+                cv2.drawContours(contour_map,[approx],0,(255,0,0),3)
                 moments = cv2.moments(approx)
                 x = int(moments["m10"]/moments["m00"])
                 y = int(moments["m01"]/moments["m00"])
-                p1 = approx[0]
-                p2 = approx[1]
 
 
         return mask,contour_map,(x,y)
