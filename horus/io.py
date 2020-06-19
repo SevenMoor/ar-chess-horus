@@ -10,7 +10,7 @@ class InputManager(object):
 
     def __init__(self,id):
         self.__cam = cv2.VideoCapture(id)
-        cv2.VideoWriter_fourcc(*'XVID')
+        #cv2.VideoWriter_fourcc(*'XVID')
         self.__cam.set(cv2.CAP_PROP_FPS, 20)
         #self.__cam.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
         #self.__cam.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
@@ -44,16 +44,44 @@ class OutputManager(object):
 
     def close(self):
         os.remove(self.__path)
-        os.remove(self.__image_pipe)
 
 
     def propagate(self,position,rotation,output):
         if len(position)>=3 and len(rotation)>=3:
-            rotation *= 57.295779513
+            position *= 0.2
+            rotation *= 360
+            print("===================================================================")
+            print('%f %f %f %f %f %f' % (position[0],position[1],position[2],rotation[0],rotation[1],-rotation[2]))
+
+
+            #Position adjusting
+            translation_correction = np.array([
+                [0,   0, 0.2],
+                [0,   1,   0],
+                [-0.2, 0,   0]
+            ],dtype="double")
+            position = translation_correction.dot(position)
+            position[0] += -4.2
+            position[1] += 1.0
+            position[2] += 4.2
+
+            #Rotation adjusting
+            rotation_correction = np.array([
+                [0, 0, 1],
+                [0, -1, 0],
+                [1, 0, 0]
+            ],dtype="double")
+            rotation = translation_correction.dot(rotation)
+            rotation[0] += 45
+            rotation[1] += 0.0
+            rotation[2] += 0.0
+
+            rotation %= 360
+
             session = open(self.__path,'w')
-            session.write('%f %f %f %f %f %f\n' % (position[2],position[1],position[0],rotation[0],rotation[2],-rotation[1]))
+            session.write('%f %f %f %f %f %f\n' % (position[0],position[1],position[2],rotation[0],rotation[1],rotation[2]))
             if output:
-                print('%f %f %f %f %f %f' % (position[0],position[1],position[2],rotation[0],rotation[2],rotation[1]))
+                print('%f %f %f %f %f %f' % (position[0],position[1],position[2],rotation[0],rotation[1],-rotation[2]))
             session.close()
         else:
             raise Exception("Le format des sorties est incorrect")

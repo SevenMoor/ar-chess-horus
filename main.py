@@ -18,15 +18,13 @@ from time import sleep
 parser = argparse.ArgumentParser()
 parser.add_argument("-o","--output",help="Affiche les positions calculées dans la console",action="store_true")
 parser.add_argument("-p","--pipe",help="Chemin du pipe de communication à créer/ouvrir",default="/tmp/archess-cli")
-parser.add_argument("-w","--webcam",help="Identifiant de la webcam à utiliser",default=0,type=int)
+parser.add_argument("-w","--webcam",help="Identifiant de la webcam à utiliser",default=0)
 parser.add_argument("-c","--calibrate",help="Ouvre le programme avec le GUI de calibration du marqueur souhaité",choices=['a','b','c','d'])
 parser.add_argument("-i","--integration-test",help="Indique de transmettre des données factices pour tester l'intégration spécifié",choices=['translate_x','translate_y','translate_z','rotate_x','rotate_y','rotate_z','circle_around'])
 parser.add_argument("-t","--trapeze",help="Affiche dans une fenêtre le trapèze de perspective capturé",action="store_true")
 parser.add_argument("-f","--focal",help="Configure et utilise la valeur fournie comme focale de la caméra en mm",type=int)
 parser.add_argument("-b","--board",help="Configure et utilise la valeur fournie comme taille du plateau en mm",type=int)
 args = parser.parse_args()
-
-
 
 #======================
 #Program Initialization
@@ -187,8 +185,8 @@ else:
             cv2.imshow("Contours",cv2.resize(contours, dim, interpolation = cv2.INTER_AREA))
 
         if args.trapeze:
-            if rotation is not None and position is not None:
-                trap_image = compiler.show_axis(trap_image,rotation,position)
+            #if rotation is not None and position is not None:
+                #trap_image = compiler.show_axis(trap_image,rotation,position)
 
             scale_percent = 100 # percent of original size
             width = int(image.shape[1] * scale_percent / 100)

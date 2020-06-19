@@ -11,5 +11,8 @@ elif [[ "$1" == "update" ]]; then
     cd "$DIR"
     echo -e "\e[36mMise à jour terminée!\e[0m"
 else
+    DIR=$(pwd)
+    cd /opt/ar-chess-horus
     python /opt/ar-chess-horus/main.py ${@:1}
+    cd "$DIR"
 fi

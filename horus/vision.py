@@ -34,10 +34,10 @@ class ColorMaskBuilder(object):
 
         mask = cv2.inRange(image,lower,upper)
 
-        kn = np.ones((6,6),np.uint8)
+        kn = np.ones((3,3),np.uint8)
         mask = cv2.erode(mask,kn)
 
-        contour_map = np.ones((1080,1920),np.uint8)
+        contour_map = np.ones((800,600),np.uint8)
         contours,_ = cv2.findContours(mask,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
 
         x = None
@@ -48,7 +48,7 @@ class ColorMaskBuilder(object):
             approx = cv2.approxPolyDP(contour,0.02*cv2.arcLength(contour,True),True)
 
             #TODO Add param to control
-            if area > 100 and len(approx)==4:
+            if area > 25 and len(approx)==4:
                 cv2.drawContours(contour_map,[approx],0,(255,0,0),3)
                 moments = cv2.moments(approx)
                 x = int(moments["m10"]/moments["m00"])
