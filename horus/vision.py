@@ -51,8 +51,9 @@ class ColorMaskBuilder(object):
             if area > 25 and len(approx)==4:
                 cv2.drawContours(contour_map,[approx],0,(255,0,0),3)
                 moments = cv2.moments(approx)
-                x = int(moments["m10"]/moments["m00"])
-                y = int(moments["m01"]/moments["m00"])
+                if moments["m00"] != 0:
+                    x = int(moments["m10"]/moments["m00"])
+                    y = int(moments["m01"]/moments["m00"])
 
 
         return mask,contour_map,(x,y)

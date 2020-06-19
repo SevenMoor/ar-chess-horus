@@ -49,34 +49,34 @@ class OutputManager(object):
     def propagate(self,position,rotation,output):
         if len(position)>=3 and len(rotation)>=3:
             position *= 0.2
-            rotation *= 360
+            rotation *= 100.0
             print("===================================================================")
             print('%f %f %f %f %f %f' % (position[0],position[1],position[2],rotation[0],rotation[1],-rotation[2]))
 
 
             #Position adjusting
             translation_correction = np.array([
-                [0,   0, 0.2],
+                [0,   0, 0.21],
                 [0,   1,   0],
-                [-0.2, 0,   0]
+                [-0.21, 0,   0]
             ],dtype="double")
             position = translation_correction.dot(position)
-            position[0] += -4.2
+            position[0] += -5.0
             position[1] += 1.0
-            position[2] += 4.2
+            position[2] += 5.0
 
             #Rotation adjusting
             rotation_correction = np.array([
-                [0, 0, 1],
-                [0, -1, 0],
-                [1, 0, 0]
+                [0, 0, 3],
+                [0,-0.9,0],
+                [-3, 0, 0]
             ],dtype="double")
-            rotation = translation_correction.dot(rotation)
-            rotation[0] += 45
+            rotation = rotation_correction.dot(rotation)
+            rotation[1] *= -1 if position[0] < 0.0 else 1
+            rotation[1] = 180-rotation[1] if position[2] < 0.0 else rotation[1]
+            rotation[0] += 45.0
             rotation[1] += 0.0
-            rotation[2] += 0.0
-
-            rotation %= 360
+            rotation[2] += 00.0
 
             session = open(self.__path,'w')
             session.write('%f %f %f %f %f %f\n' % (position[0],position[1],position[2],rotation[0],rotation[1],rotation[2]))
